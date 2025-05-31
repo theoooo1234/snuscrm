@@ -1,3 +1,4 @@
+{% load group_extras %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,11 +17,13 @@
     <a href="{% url 'login' %}" class="btn btn-link float-end me-2">Login</a>
   {% endif %}
 
-  {% if user.groups.filter(name="Warehouse").exists %}
+
+  {% if user|has_group:"Warehouse" %}
     <a href="{% url 'warehouse_orders' %}" class="btn btn-warning float-end me-2">
       Warehouse Panel
     </a>
   {% endif %}
+
 
   <a href="{% url 'cart_detail' %}" class="btn btn-outline-secondary float-end mb-3">
     View Cart
@@ -39,6 +42,7 @@
         <th></th>
       </tr>
     </thead>
+
     <tbody>
       {% for v in variants %}
       <tr>
