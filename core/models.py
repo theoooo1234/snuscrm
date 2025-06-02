@@ -3,13 +3,21 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
+
 class Company(models.Model):
     name = models.CharField(max_length=120, unique=True)
     country = models.CharField(max_length=60, blank=True)
+    vat_number = models.CharField(max_length=40, blank=True)
+    register_number = models.CharField(max_length=40, blank=True)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=40, blank=True)
+    delivery_address = models.TextField(blank=True)
+    contact_person = models.CharField(max_length=120, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ["name"]
+        verbose_name_plural = "Companies"
 
     def __str__(self):
         return self.name

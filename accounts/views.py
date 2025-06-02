@@ -12,7 +12,7 @@ def signup(request):
         form = CustomerSignUpForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("login")
+            return render(request, "accounts/pending.html")
     else:
         form = CustomerSignUpForm()
     return render(request, "accounts/signup.html", {"form": form})

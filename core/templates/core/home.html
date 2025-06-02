@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Welcome{% endblock %}
+
+{% block extra_head %}
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  if (!sessionStorage.getItem("ageVerified")) {
+    const ok = confirm("Our products contain nicotine. Are you 18 or older?");
+    if (!ok) { window.location = "https://google.com"; }
+    else { sessionStorage.setItem("ageVerified", "yes"); }
+  }
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Welcome to Nordic Pouch Factory</h1>
+<p>
+  We specialise in premium nicotine pouches produced in Scandinavia.<br>
+  Fully compliant with EU legislation and available in multiple strengths and flavours.
+</p>
+<p>
+  Our factory combines cutting-edge automation with strict quality control, enabling us to
+  supply wholesalers across Europe and beyond.
+</p>
+
+<a href="{% url 'product_list' %}" class="btn btn-lg btn-success mt-3">Order&nbsp;Now</a>
+{% endblock %}

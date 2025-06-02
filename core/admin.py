@@ -1,15 +1,18 @@
 from django.contrib import admin
 from .models import Company, Product, Variant, Order, OrderLine
 
+
 @admin.register(Company)
 class CompanyAdmin(admin.ModelAdmin):
-    list_display = ("name", "country", "created_at")
-    search_fields = ("name",)
+    list_display = ("name", "country", "vat_number", "phone", "email", "created_at")
+    search_fields = ("name", "vat_number", "register_number")
+
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ("name",)
     search_fields = ("name",)
+
 
 @admin.register(Variant)
 class VariantAdmin(admin.ModelAdmin):
@@ -17,9 +20,11 @@ class VariantAdmin(admin.ModelAdmin):
     list_filter = ("product",)
     search_fields = ("sku",)
 
+
 class OrderLineInline(admin.TabularInline):
     model = OrderLine
     extra = 0
+
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):

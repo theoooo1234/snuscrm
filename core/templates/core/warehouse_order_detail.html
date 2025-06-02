@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Order #{{ order.id }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container py-4">
+
+<h1 class="mb-3">Order #{{ order.id }}</h1>
+<p>
+  <strong>Status&nbsp;:</strong> {{ order.get_status_display }} |
+  <strong>Created&nbsp;:</strong> {{ order.created_at|date:"Y-m-d H:i" }}
+</p>
+
+<h4>Customer</h4>
+<table class="table table-sm">
+  <tr><th>Name</th><td>{{ order.company.name }}</td></tr>
+  <tr><th>VAT</th><td>{{ order.company.vat_number }}</td></tr>
+  <tr><th>Reg&nbsp;No.</th><td>{{ order.company.register_number }}</td></tr>
+  <tr><th>Email</th><td>{{ order.company.email }}</td></tr>
+  <tr><th>Phone</th><td>{{ order.company.phone }}</td></tr>
+  <tr><th>Contact</th><td>{{ order.company.contact_person }}</td></tr>
+  <tr><th>Address</th><td>{{ order.company.delivery_address|linebreaksbr }}</td></tr>
+</table>
+
+<h4 class="mt-4">Items</h4>
+<table class="table table-striped">
+  <thead><tr><th>SKU</th><th>Product</th><th class="text-end">Qty</th></tr></thead>
+  <tbody>
+    {% for line in order.lines.all %}
+    <tr>
+      <td>{{ line.variant.sku }}</td>
+      <td>{{ line.variant.product.name }}</td>
+      <td class="text-end">{{ line.quantity }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<div class="mt-3">
+  {% if order.status != "DELIVERED" %}
+    <form action="{% url 'advance_status' order.id %}" method="post" class="d-inline">
+      {% csrf_token %}
+      <button class="btn btn-primary">Next stage</button>
+    </form>
+  {% endif %}
+  <a href="{% url 'warehouse_orders' %}" class="btn btn-secondary">Back</a>
+</div>
+
+</body>
+</html>

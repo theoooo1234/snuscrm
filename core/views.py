@@ -1,11 +1,16 @@
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.views.generic import ListView
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
 from .models import Variant, Company, Order, OrderLine
 from .forms import AddToCartForm
 from .cart import Cart
 
+
+
+def home(request):
+    """Public landing page at / (or /home/)"""
+    return render(request, "core/home.html")
 
 
 
@@ -36,7 +41,9 @@ def checkout(request):
     if not cart.cart:
         return redirect("product_list")
 
-    company = Company.objects.first()                     # placeholder
+
+    company = getattr(request.user, "company", None) or Company.objects.first()
+
     order = Order.objects.create(company=company, created_by=request.user)
 
     for variant, qty, _ in cart.items():
@@ -54,7 +61,6 @@ def order_success(request, pk):
 
 
 
-
 def in_warehouse(user):
     return user.is_authenticated and user.groups.filter(name="Warehouse").exists()
 
@@ -66,22 +72,28 @@ def warehouse_orders(request):
 
 
 @user_passes_test(in_warehouse)
+def warehouse_order_detail(request, pk):
+    order = get_object_or_404(Order, pk=pk)
+    order_total = sum(l.line_total for l in order.lines.all())
+    context = {"order": order, "order_total": order_total}
+    return render(request, "core/warehouse_order_detail.html", context)
+
+
+@user_passes_test(in_warehouse)
 def advance_status(request, pk):
-    order = Order.objects.get(pk=pk)
+    order = get_object_or_404(Order, pk=pk)
     flow = ["CREATED", "PACKING", "SHIPPED", "DELIVERED"]
 
     try:
-        next_status = flow[flow.index(order.status) + 1]
-        order.status = next_status
+        order.status = flow[flow.index(order.status) + 1]
         order.save()
     except (ValueError, IndexError):
-        pass  # already at final state
+        pass
 
     return redirect("warehouse_orders")
 
 
 
-
 def customer_order_detail(request, pk):
-    order = Order.objects.get(pk=pk)
+    order = get_object_or_404(Order, pk=pk)
     return render(request, "core/order_detail.html", {"order": order})

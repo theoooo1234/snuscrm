@@ -1,13 +1,36 @@
 <!DOCTYPE html>
 <html>
-<head><title>Order #{{ order.id }}</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"></head>
+<head>
+  <title>Order #{{ order.id }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
 <body class="container py-4">
+
 <h1>Order #{{ order.id }}</h1>
 <p>Status: <strong>{{ order.get_status_display }}</strong></p>
-<table class="table"><thead><tr><th>SKU</th><th>Qty</th></tr></thead><tbody>
-{% for line in order.lines.all %}
-<tr><td>{{ line.variant.sku }}</td><td>{{ line.quantity }}</td></tr>
-{% endfor %}
-</tbody></table>
-</body></html>
+
+<h4 class="mt-4">Customer</h4>
+<table class="table">
+  <tr><th>Name</th><td>{{ order.company.name }}</td></tr>
+  <tr><th>Email</th><td>{{ order.company.email }}</td></tr>
+  <tr><th>Phone</th><td>{{ order.company.phone }}</td></tr>
+  <tr><th>Address</th><td>{{ order.company.delivery_address|linebreaksbr }}</td></tr>
+</table>
+
+<h4 class="mt-4">Items</h4>
+<table class="table table-striped">
+  <thead><tr><th>SKU</th><th>Product</th><th>Qty</th></tr></thead>
+  <tbody>
+    {% for line in order.lines.all %}
+    <tr>
+      <td>{{ line.variant.sku }}</td>
+      <td>{{ line.variant.product.name }}</td>
+      <td>{{ line.quantity }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<a href="{% url 'product_list' %}" class="btn btn-secondary">Back to catalogue</a>
+</body>
+</html>
