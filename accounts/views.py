@@ -1,5 +1,5 @@
 from django.contrib.auth import views as auth_views
-from django.shortcuts import render, redirect
+from django.shortcuts import render
 from .forms import CustomerSignUpForm
 
 
@@ -8,11 +8,8 @@ class LoginView(auth_views.LoginView):
 
 
 def signup(request):
-    if request.method == "POST":
-        form = CustomerSignUpForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return render(request, "accounts/pending.html")
-    else:
-        form = CustomerSignUpForm()
+    form = CustomerSignUpForm(request.POST or None)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return render(request, "accounts/pending.html")
     return render(request, "accounts/signup.html", {"form": form})

@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Account pending – SnusCRM{% endblock %}
+
+{% block content %}
+<h1 class="mb-4 text-success">Thanks for signing up!</h1>
+
+<p>
+  Your customer account has been created.  
+  A member of our sales team will activate it shortly.  
+  We’ll email you when it’s ready, or you can try
+  <a href="{% url 'login' %}">logging-in</a> later today.
+</p>
+{% endblock %}

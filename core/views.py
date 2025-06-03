@@ -7,16 +7,14 @@ from .forms import AddToCartForm
 from .cart import Cart
 
 
-
 def home(request):
-    """Public landing page at / (or /home/)"""
     return render(request, "core/home.html")
 
 
 
 class ProductListView(ListView):
-    model = Variant
-    template_name = "core/product_list.html"
+    model               = Variant
+    template_name       = "core/product_list.html"
     context_object_name = "variants"
 
 
@@ -28,10 +26,9 @@ def add_to_cart(request):
 
 
 def cart_detail(request):
-    cart = Cart(request)
+    cart  = Cart(request)
     total = sum(line_total for _, _, line_total in cart.items())
     return render(request, "core/cart_detail.html", {"cart": cart, "total": total})
-
 
 
 
@@ -41,8 +38,9 @@ def checkout(request):
     if not cart.cart:
         return redirect("product_list")
 
-
-    company = getattr(request.user, "company", None) or Company.objects.first()
+    company = getattr(request.user, "company", None)
+    if company is None:
+        return redirect("cart_detail")
 
     order = Order.objects.create(company=company, created_by=request.user)
 
@@ -67,26 +65,29 @@ def in_warehouse(user):
 
 @user_passes_test(in_warehouse)
 def warehouse_orders(request):
-    orders = Order.objects.all().order_by("-id")
+    orders = Order.objects.all().select_related("company").order_by("-id")
     return render(request, "core/warehouse_orders.html", {"orders": orders})
 
 
 @user_passes_test(in_warehouse)
 def warehouse_order_detail(request, pk):
-    order = get_object_or_404(Order, pk=pk)
+    order = get_object_or_404(Order.objects.select_related("company"), pk=pk)
     order_total = sum(l.line_total for l in order.lines.all())
-    context = {"order": order, "order_total": order_total}
-    return render(request, "core/warehouse_order_detail.html", context)
+    return render(
+        request,
+        "core/warehouse_order_detail.html",
+        {"order": order, "order_total": order_total},
+    )
 
 
 @user_passes_test(in_warehouse)
 def advance_status(request, pk):
     order = get_object_or_404(Order, pk=pk)
-    flow = ["CREATED", "PACKING", "SHIPPED", "DELIVERED"]
+    flow  = ["CREATED", "PACKING", "SHIPPED", "DELIVERED"]
 
     try:
         order.status = flow[flow.index(order.status) + 1]
-        order.save()
+        order.save(update_fields=["status"])
     except (ValueError, IndexError):
         pass
 
@@ -95,5 +96,5 @@ def advance_status(request, pk):
 
 
 def customer_order_detail(request, pk):
-    order = get_object_or_404(Order, pk=pk)
+    order = get_object_or_404(Order.objects.select_related("company"), pk=pk)
     return render(request, "core/order_detail.html", {"order": order})
